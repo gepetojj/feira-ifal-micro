@@ -20,3 +20,15 @@ Projeto de piano com ESP-32, seus sensores capacitivos e Buzzer Piezo.
 * ESP-32 (x1)
 * Buzzer Piezo (x1)
 * Jumpers (para cada nota)
+
+## Braço Mecânico
+
+Projeto de braço mecânico com micro servos controlados por potenciômetros.
+
+###Materiais
+
+* Micro servos 9g (x4)
+* Potenciômetros 250 kΩ (x4)
+* Fonte externa de 5v (x1)
+* Capacitor eletrolítico 1000 µF (x1)
+* Parafusos e porcas variadas
