@@ -36,7 +36,7 @@ Projeto de braço mecânico com micro servos controlados por potenciômetros.
 
 ## Alexa
 
-Projeto de reconhecimento vocal (text-to-speech) no ESP-32.
+Projeto de reconhecimento vocal (speech-to-text) no ESP-32.
 
 ### Materiais
 
