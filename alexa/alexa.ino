@@ -35,9 +35,25 @@ void handleLed1Off()
 	server.send(200, "text/plain", "OK");
 }
 
-void setup(void)
+void handleLed1Blink()
+{
+	for (int x = 0; x < 2; x++)
+	{
+		digitalWrite(LED_1_PIN, HIGH);
+		delay(300);
+		digitalWrite(LED_1_PIN, LOW);
+		delay(300);
+	}
+
+	led_1_state = 0;
+	server.send(200, "text/plain", "OK");
+}
+
+void setup()
 {
 	Serial.begin(115200);
+
+	pinMode(LED_1_PIN, OUTPUT);
 
 	WiFi.mode(WIFI_STA);
 	WiFi.begin(SSID, PASS);
@@ -45,8 +61,12 @@ void setup(void)
 	Serial.print("Conectando ao WiFi...");
 	while (WiFi.waitForConnectResult() != WL_CONNECTED)
 	{
+		digitalWrite(LED_1_PIN, HIGH);
+		delay(500);
+		digitalWrite(LED_1_PIN, LOW);
+		delay(500);
+
 		Serial.print(".");
-		delay(100);
 	}
 
 	Serial.print("\nConectado em: ");
@@ -57,12 +77,25 @@ void setup(void)
 	server.on("/", handleRoot);
 	server.on("/led/ligar", handleLed1On);
 	server.on("/led/desligar", handleLed1Off);
+	server.on("/led/blink", handleLed1Blink);
 
 	server.begin();
 }
 
-void loop(void)
+void loop()
 {
+	// Printa o IP local se receber a mensagem "ip" no serial.
+	if (Serial.available() != 0)
+	{
+		String input = Serial.readString();
+
+		if (input == "ip")
+		{
+			Serial.print("Endereco IP: ");
+			Serial.println(WiFi.localIP());
+		}
+	}
+
 	server.handleClient();
 	delay(1);
 }

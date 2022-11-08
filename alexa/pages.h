@@ -100,17 +100,23 @@ const char MAIN_page[] PROGMEM = R"=====(
 		</main>
 
 		<script defer>
-      // TODO: Adicione os handlers aqui
+      		// TODO: Adicione os handlers aqui
 
 			function processCommand(command) {
 				command = command.toLowerCase();
-				
-				if (command.includes("ligar led")) {
-					fetch("/led/ligar");
-				} 
-				else if (command.includes("desligar led")) {
-					fetch("/led/desligar");
-				}
+
+				if (command.includes("led")) {
+
+					if (command.includes("ligar") || command.includes("ligue") || command.includes("acenda")) {
+						fetch("/led/ligar");            
+					}
+					else if (command.includes("desligar") || command.includes("desligue") || command.includes("apague")) {
+						fetch("/led/desligar");            
+					}
+					else if (command.includes("piscar") || command.includes("pisque")) {
+						fetch("/led/blink");
+					}
+				}        
 			}
 		</script>
 
