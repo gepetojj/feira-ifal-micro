@@ -42,3 +42,5 @@ Projeto de reconhecimento vocal (speech-to-text) no ESP-32.
 
 * ESP-32 (x1)
 * LED (x1)
+* Buzzer Piezo (x1)
+* Sensor LM35 (x1)

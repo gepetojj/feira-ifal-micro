@@ -223,3 +223,144 @@ const char MAIN_page[] PROGMEM = R"=====(
 	</body>
 </html>
 )=====";
+
+const char SETTINGS_page[] PROGMEM = R"=====(
+<!DOCTYPE html>
+<html lang="pt-br">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Alexa com ESP-32</title>
+
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+				font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+				background-color: rgb(1, 1, 12);
+				overflow-x: hidden;
+			}
+
+			main {
+				display: flex;
+				flex-direction: column;
+				width: 100vw;
+				height: 95vh;
+				color: white;
+				text-align: center;
+			}
+
+			.settings-parent {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.settings {
+				width: 100%;
+				max-width: 30rem;
+				border: 1px solid white;
+				border-radius: 0.3rem;
+				padding: 1rem;
+			}
+
+			form {
+				display: flex;
+				flex-direction: column;
+			}
+
+			input {
+				padding: 0.4rem;
+				margin: 0.25rem 0;
+				outline: none;
+				border: none;
+				border-radius: 0.3rem;
+			}
+
+			button {
+				padding: 0.4rem;
+				margin-top: 1rem;
+				border: none;
+				border-radius: 0.3rem;
+				transition: 200ms;
+			}
+
+			button:hover {
+				filter: brightness(90%);
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<h1>Alexa com ESP-32</h1>
+			<p>
+				Configurações da Alexa: configure a conexão WiFi inserindo o SSID e sua respectiva
+				senha.
+			</p>
+			<div class="settings-parent">
+				<div class="settings">
+					<p>Modo WiFi do ESP-32: <span id="wifi-mode">Access Point (AP)</span></p>
+					<p>Conectado ao SSID: <span id="connected-ssid">Nenhum</span></p>
+					<form id="form">
+						<h2>Selecione a conexão WiFi:</h2>
+						<span id="feedback" style="margin-bottom: 1rem; color: yellow"></span>
+						<input type="text" name="ssid" id="ssid" placeholder="SSID:" required />
+						<input type="password" name="pass" id="pass" placeholder="Senha:" />
+						<button type="submit">Conectar ESP-32</button>
+					</form>
+				</div>
+			</div>
+		</main>
+
+		<script defer>
+			setInterval(getSettingsData, 1000);
+
+			function getSettingsData() {
+				fetch("/settings/see").then((res) =>
+					res.json().then((data) => {
+						document.getElementById("wifi-mode").innerText = data.wifi_mode ?? "?";
+						document.getElementById("connected-ssid").innerText =
+							data.connected_ssid ?? "Nenhum";
+					})
+				);
+			}
+		</script>
+
+		<script defer>
+			const form = document.getElementById("form");
+			form.onsubmit = formSubmit;
+
+			function formSubmit(event) {
+				event.preventDefault();
+				if (!event || !event.target) return;
+
+				const ssid = event.target[0].value;
+				const pass = event.target[1].value;
+
+				const feedbackElement = document.getElementById("feedback");
+
+				fetch("/settings/set", {
+					method: "POST",
+					headers: {
+						Accept: "application/json",
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						ssid: String(ssid),
+						pass: String(pass),
+					}),
+				})
+					.then((res) => res.text().then((data) => {
+						if (res.ok)
+							feedbackElement.innerText = "O pedido foi processado com sucesso.";
+						else feedbackElement.innerText = data ?? "Houve um erro ao processar este pedido.";
+					}))
+					.catch(() => {
+						feedbackElement.innerText = "Não foi possível concluir este pedido.";
+					});
+			}
+		</script>
+	</body>
+</html>
+)=====";
