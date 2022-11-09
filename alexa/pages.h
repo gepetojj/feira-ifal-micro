@@ -90,7 +90,8 @@ const char MAIN_page[] PROGMEM = R"=====(
 				<p>Permita acesso ao seu microfone, fale algo, e veja o resultado no ESP-32.</p>
 				<div class="transcript-parent">
 					<div class="transcript">
-						<p id="transcript">Resultado:</p>
+						<p>Pedido: <span id="transcript"></span></p>
+            			<p>Resposta: <span id="response"></span></p>
 						<button type="button" id="speak" onclick="speechRecog.start();" disabled>
 							Aperte para falar
 						</button>
@@ -100,23 +101,36 @@ const char MAIN_page[] PROGMEM = R"=====(
 		</main>
 
 		<script defer>
-      		// TODO: Adicione os handlers aqui
+			function processResponse(message) {
+				const response = document.getElementById("response");
+				response.innerText = message;
+
+				const tts = new SpeechSynthesisUtterance();
+				tts.lang = "pt-BR";
+				tts.text = message;
+				window.speechSynthesis.speak(tts);
+			}
 
 			function processCommand(command) {
 				command = command.toLowerCase();
 
 				if (command.includes("led")) {
-
 					if (command.includes("ligar") || command.includes("ligue") || command.includes("acenda")) {
-						fetch("/led/ligar");            
+						fetch("/led/ligar").then(res => res.text().then(data => processResponse(data ?? "OK")));
 					}
 					else if (command.includes("desligar") || command.includes("desligue") || command.includes("apague")) {
-						fetch("/led/desligar");            
+						fetch("/led/desligar").then(res => res.text().then(data => processResponse(data ?? "OK")));         
 					}
 					else if (command.includes("piscar") || command.includes("pisque")) {
-						fetch("/led/blink");
+						fetch("/led/blink").then(res => res.text().then(data => processResponse(data ?? "OK")));
 					}
-				}        
+				}
+        		else if (command.includes("temperatura")) {
+          			fetch("/temp").then(res => res.text().then(data => processResponse(`A temperatura atual é ${data ?? "?"} graus celsius.`)));
+        		}
+				else if (command.includes("som")) {
+					fetch("/buzzer").then(res => res.text().then(data => processResponse(data ?? "OK")));
+				}
 			}
 		</script>
 

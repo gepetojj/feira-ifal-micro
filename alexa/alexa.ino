@@ -4,14 +4,14 @@
 
 #include "pages.h"
 
-#define LED_1_PIN 0
+#define LED_1_PIN 2
+#define TEMP_1_PIN 35
+#define BUZZER_1_PIN 5
 
 #define SSID "*******"
 #define PASS "*******"
 
 WebServer server(80);
-
-unsigned int led_1_state = 0;
 
 void handleRoot()
 {
@@ -21,32 +21,44 @@ void handleRoot()
 
 void handleLed1On()
 {
-	led_1_state = 1;
-	digitalWrite(LED_1_PIN, led_1_state);
-
-	server.send(200, "text/plain", "OK");
+	digitalWrite(LED_1_PIN, HIGH);
+	server.send(200, "text/plain", "Led ligado.");
 }
 
 void handleLed1Off()
 {
-	led_1_state = 0;
-	digitalWrite(LED_1_PIN, led_1_state);
-
-	server.send(200, "text/plain", "OK");
+	digitalWrite(LED_1_PIN, LOW);
+	server.send(200, "text/plain", "Led desligado.");
 }
 
 void handleLed1Blink()
 {
-	for (int x = 0; x < 2; x++)
+	for (int x = 0; x < 5; x++)
 	{
 		digitalWrite(LED_1_PIN, HIGH);
-		delay(300);
+		delay(500);
 		digitalWrite(LED_1_PIN, LOW);
-		delay(300);
+		delay(500);
 	}
 
-	led_1_state = 0;
-	server.send(200, "text/plain", "OK");
+	server.send(200, "text/plain", "OK.");
+}
+
+void handleTemp()
+{
+	int received = analogRead(TEMP_1_PIN);
+	float voltage = received * (5000 / 1024.0);
+	float temperature = voltage / 10;
+	Serial.println(received);
+	Serial.println(temperature);
+
+	server.send(200, "text/plain", String(temperature));
+}
+
+void handleBuzzer()
+{
+	tone(BUZZER_1_PIN, 422, 2000);
+	server.send(200, "text/plain", "OK.");
 }
 
 void setup()
@@ -54,6 +66,8 @@ void setup()
 	Serial.begin(115200);
 
 	pinMode(LED_1_PIN, OUTPUT);
+	pinMode(TEMP_1_PIN, INPUT);
+	pinMode(BUZZER_1_PIN, OUTPUT);
 
 	WiFi.mode(WIFI_STA);
 	WiFi.begin(SSID, PASS);
@@ -69,6 +83,7 @@ void setup()
 		Serial.print(".");
 	}
 
+	delay(2000);
 	Serial.print("\nConectado em: ");
 	Serial.println(SSID);
 	Serial.print("Endereco IP: ");
@@ -78,6 +93,8 @@ void setup()
 	server.on("/led/ligar", handleLed1On);
 	server.on("/led/desligar", handleLed1Off);
 	server.on("/led/blink", handleLed1Blink);
+	server.on("/temp", handleTemp);
+	server.on("/buzzer", handleBuzzer);
 
 	server.begin();
 }
@@ -89,7 +106,7 @@ void loop()
 	{
 		String input = Serial.readString();
 
-		if (input == "ip")
+		if (input == String("ip"))
 		{
 			Serial.print("Endereco IP: ");
 			Serial.println(WiFi.localIP());
